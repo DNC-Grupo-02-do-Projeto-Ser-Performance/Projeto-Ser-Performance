@@ -1,0 +1,109 @@
+# Listas de palavras positivas e negativas
+palavras_positivas = [
+    "otimo", "bom", "excelente", "satisfatorio", "positivo", "eficiente", "competente",
+    "organizado", "motivador", "atencioso", "flexivel", "agradavel", "reconhecido",
+    "proativo", "proativa", "confiavel", "entusiasmado", "entusiasmada", "capaz",
+    "qualificado", "qualificada", "produtivo", "produtiva", "rapido", "rapida",
+    "pontual", "efetivo", "efetiva", "superior", "inovador", "inovadora", "admiravel",
+    "aprovado", "aprovada", "eficaz", "fantastico", "fantastica", "incrivel", "otima",
+    "parabéns", "comprometido", "comprometida", "satisfeito", "uma boa", "carismatico",
+    "carismatica", "muito focado", "bacana", "cordial", "colaborador", "eficiência",
+    "disciplina", "comportado", "exemplar", "guerreira", "destaque", "relacionamento",
+    "disposição", "ajudar", "postura", "potencial", "melhora", "qualidade", "carinho",
+    "sorriso", "simpatia", "metas batidas", "acima do esperado", "acima da média",
+    "atende bem", "correto", "corretamente", "focado", "disposto", "elogios", "pontualidade",
+    "focada", "articulado", "dedicado", "engajado", "valoroso", "energético", "habilidoso",
+    "talentoso", "profissional", "bem-sucedido", "perspicaz", "promissor", "esforçado",
+    "disciplinado", "disciplinada", "compromissado", "compromissada"
+]
+
+palavras_negativas = [
+    "ruim", "pessimo", "pessima", "insatisfatorio", "insatisfatoria", "negativo",
+    "negativa", "ineficiente", "incompetente", "irresponsavel", "desorganizado",
+    "desorganizada", "lento", "lenta", "desmotivado", "desmotivada", "desleixado",
+    "desleixada", "desatencioso", "desatenciosa", "inflexivel", "irritado", "irritada",
+    "desrespeitoso", "desrespeitosa", "nao profissional", "negligente", "imprudente",
+    "ineficaz", "improdutivo", "improdutiva", "indisciplinado", "indisciplinada",
+    "desobediente", "insubordinado", "insubordinada", "incompreensivel", "incoerente",
+    "desconfiavel", "preguiçoso", "preguiçosa", "relapso", "teimoso", "teimosa",
+    "desinteressado", "desinteressada", "caotico", "caotica", "critico", "critica",
+    "dificuldade", "disfuncional", "desagradavel", "desaprovacao", "desastroso",
+    "desastrosa", "deteriorado", "deteriorada", "desgostoso", "desgostosa", "desonesto",
+    "desonesta", "decepcionante", "defeituoso", "defeituosa", "deficiente", "demorado",
+    "demorada", "desafio", "desprezivel", "inaceitavel", "inadmissivel", "inapto",
+    "inapta", "inconveniente", "indesejavel", "ineficacia", "ineficiencia", "inferior",
+    "lamentavel", "mediocre", "problematico", "problematica", "reprovavel", "ridiculo",
+    "ridicula", "sofrivel", "toleravel", "triste", "vexatorio", "vexatoria",
+    "vulneravel", "impontual", "desestruturado", "desestruturada", "insensivel",
+    "intolerante", "insuficiente", "inepto", "inepta", "indolente", "infeliz",
+    "ingrato", "ingrata", "ruindade", "substandard", "fracasso", "insatisfacao",
+    "fracassado", "fracassada", "insolente", "incapaz", "deploravel", "atroz",
+    "impertinente", "nulo", "constrangedor", "constrangedora", "desolador",
+    "desoladora", "decaido", "decaida", "indelicado", "indelicada", "falho",
+    "prejudicial", "incorreto", "incorreta", "irregular", "irritante", "inadequado",
+    "inadequada", "nauseante", "abominavel", "devendo", "desligado", "oscilar",
+    "mediano", "apagado", "vibração", "baixo", "escorado", "problemas pessoais",
+    "atrasos", "advertência", "constante atraso", "abaixo do esperado", "abaixo da média",
+    "apático"
+]
+
+palavras_neutras = [
+    "precisa melhorar", "adequado", "regular", "aceitável", "normal",
+    "pode melhorar", "esperado", "ok", "razoável", "suficiente", "precisa",
+    "precisando", "precisando melhorar"
+]
+
+
+# Função para normalizar o texto
+def normalizar_texto(texto):
+    texto = unidecode(texto).lower()
+    texto = re.sub(r'[^\w\s]', '', texto)
+    return texto
+
+# Função para analisar o sentimento
+def analisar_sentimento(texto):
+    """
+    Analisa o sentimento do texto utilizando uma lista de palavras-chave
+    e regras básicas para sarcasmo e ironia.
+    """
+    texto_normalizado = normalizar_texto(texto)
+
+    # Detecta sarcasmo básico com pontuações de exclamação
+    if re.search(r"!+!", texto_normalizado):
+        return "sarcasmo_negativo"
+
+    # Analisa o sentimento com base na lista de palavras-chave
+    pontuacao_sentimento = 0
+    for palavra in texto_normalizado.split():
+        if palavra in [unidecode(p).lower() for p in palavras_positivas]:
+            pontuacao_sentimento += 1
+        elif palavra in [unidecode(p).lower() for p in palavras_negativas]:
+            pontuacao_sentimento -= 1
+        elif palavra in [unidecode(p).lower() for p in palavras_neutras]:
+            pontuacao_sentimento += 0  # Sem alteração na pontuação para neutro
+
+    # Verifica se o texto contém uma nota válida (0 a 5), ignorando datas e números acima de 5
+    notas = [int(n) for n in re.findall(r'\b\d+\b', texto) if 0 <= int(n) <= 5]
+
+    # Ignorar datas nos formatos DD/MM e DD-MM-YYYY
+    datas_formatadas = re.findall(r'\b\d{2}/\d{2}\b', texto) + re.findall(r'\b\d{2}-\d{2}-\d{4}\b', texto)
+    if any(data in datas_formatadas for data in re.findall(r'\b\d{2}/\d{2}\b', texto)) or \
+       any(data in datas_formatadas for data in re.findall(r'\b\d{2}-\d{2}-\d{4}\b', texto)):
+        return "neutro"
+
+    if notas:
+        nota = notas[0]
+        if nota in [4, 5]:
+            return "positivo"
+        elif nota in [0, 1, 2]:
+            return "negativo"
+        else:
+            return "neutro"
+
+    # Determina o sentimento com base nas contagens
+    if pontuacao_sentimento > 0:
+        return "positivo"
+    elif pontuacao_sentimento < 0:
+        return "negativo"
+    else:
+        return "neutro"
